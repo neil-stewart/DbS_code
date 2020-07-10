@@ -4,7 +4,7 @@ This source code implements the decision-by-sampling model for risky choices rep
 
 DbS.R is the library of functions used in the model.
 
-simple_example.R is the example from the on-line calculator. See simple_example.Rout for output.
+simple_example.R is a simple example! See simple_example.Rout for output.
 
 ## Example Function Calls
 
