@@ -1,0 +1,87 @@
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # Load the decision by sampling library
+> source("DbS.R")
+> 
+> # 80% chance of 4000 otherwise nothing 
+> # vs 3000 for sure
+> c3 <- list(g3A=gamble(x=c(4000, 0), p=c(0.8, 0.2)),
++ 	g3B=gamble(x=c(3000), p=c(1))
++ )
+> c3
+$g3A
+        x   p
+[1,] 4000 0.8
+[2,]    0 0.2
+
+$g3B
+        x p
+[1,] 3000 1
+
+> 
+> # 20% chance of 4000 otherwise nothing 
+> # vs 25% chance of 3000 otherwise
+> c4 <- list(g4A=gamble(x=c(4000, 0), p=c(0.2, 0.8)),
++ 	g4B=gamble(x=c(3000, 0), p=c(0.25, 0.75))
++ )
+> c4
+$g4A
+        x   p
+[1,] 4000 0.2
+[2,]    0 0.8
+
+$g4B
+        x    p
+[1,] 3000 0.25
+[2,]    0 0.75
+
+> 
+> # Thresholds for discriminating amounts and probabilities
+> thresholds <- list(x=10, p=.1)
+> 
+> # A uniform background context of amounts and probabilities
+> context <- list(x=seq(-6000,6000,1), p=seq(-1,1,.01))
+> 
+> # Probability of selecting each gamble for each choice
+> predictions <- DbS(choices=list(c3=c3, c4=c4), 
++ 	thresholds=thresholds, 
++ 	context=context, 
++ 	prob.sample.context=.5, 
++ 	prob.sample.amount=.5, 
++ 	self.comparison=F, 
++ 	choice.mechanism="accumulators",
++ 	choice.threshold=5
++ )
+> predictions
+$c3
+      g3A       g3B 
+0.1818279 0.8181721 
+
+$c4
+      g4A       g4B 
+0.6025243 0.3974757 
+
+> 
+> proc.time()
+   user  system elapsed 
+  0.224   0.020   0.232 

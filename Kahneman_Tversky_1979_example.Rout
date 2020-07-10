@@ -1,0 +1,134 @@
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # This is the simplest code for applying the DbS model using the DbS.R
+> # library to the Kahneman and Tversky (1979) data. 
+> #
+> # R CMD BATCH Kahneman_Tversky_1979_example.R should produce example output
+> source("DbS.R")
+> 
+> source("Kahneman_Tversky_1979_data.R")
+> 
+> # Thresholds for discriminating amounts and probabilities
+> thresholds=list(x=10, p=.1)
+> 
+> # Set the context with samples from the Stewart, Brown, and Chater (2006)
+> # distributions of gains, losses, and probabilities
+> exchange.rate <- 2.06044 # 1 British pound = 2.14 4 Israeli pounds
+> context <- list(
++ 	x=exchange.rate * scan("amounts.csv"),
++ 	p=scan("probs.csv")
++ )
+Read 2000 items
+Read 2000 items
+> 
+> # Or uncomment the line below for a uniform distribution for the background
+> # context of amounts and probabilities
+> # context <- list(x=seq(-6000,6000,1), p=seq(-1,1,.01))
+> 
+> # Probability of selecting each gamble for each choice
+> predictions <- DbS(choices=choices, 
++ 	thresholds=thresholds, 
++ 	context=context, 
++ 	prob.sample.context=.5, 
++ 	prob.sample.amount=.5, 
++ 	self.comparison=F, 
++ 	choice.mechanism="random walk",
++ 	choice.threshold=5
++ )
+> predictions
+$c1
+       g1A        g1B 
+0.04753537 0.95246463 
+
+$c2
+      g2A       g2B 
+0.6704868 0.3295132 
+
+$c3
+       g3A        g3B 
+0.04320237 0.95679763 
+
+$c4
+      g4A       g4B 
+0.6733273 0.3266727 
+
+$c7
+      g7A       g7B 
+0.3177522 0.6822478 
+
+$c8
+      g8A       g8B 
+0.7031562 0.2968438 
+
+$c3p
+        g3pA         g3pB 
+0.9992997083 0.0007002917 
+
+$c4p
+     g4pA      g4pB 
+0.3082821 0.6917179 
+
+$c7p
+     g7pA      g7pB 
+0.7432663 0.2567337 
+
+$c8p
+     g8pA      g8pB 
+0.2955077 0.7044923 
+
+$c13
+     g13A      g13B 
+0.2940626 0.7059374 
+
+$c13p
+    g13pA     g13pB 
+0.7555496 0.2444504 
+
+$c14
+       g14A        g14B 
+0.998826764 0.001173236 
+
+$c14p
+      g14pA       g14pB 
+0.006130189 0.993869811 
+
+$c11
+      g11A       g11B 
+0.04183664 0.95816336 
+
+$c12
+       g12A        g12B 
+0.999219661 0.000780339 
+
+> # Probability of selecting the first gamble in each choice
+> sapply(predictions,function(z) {z[[1]]})
+         c1          c2          c3          c4          c7          c8 
+0.047535372 0.670486759 0.043202374 0.673327252 0.317752232 0.703156204 
+        c3p         c4p         c7p         c8p         c13        c13p 
+0.999299708 0.308282052 0.743266326 0.295507668 0.294062575 0.755549581 
+        c14        c14p         c11         c12 
+0.998826764 0.006130189 0.041836635 0.999219661 
+> 
+> proc.time()
+   user  system elapsed 
+  0.276   0.020   0.305 

@@ -1,0 +1,249 @@
+
+R version 2.13.1 (2011-07-08)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # This file contains example source code for calling each of the key
+> # functions in the DbS.R library. 
+> #
+> # R CMD BATCH example_function_calls.R should produce example output
+> 
+> source("DbS.R")
+> 
+> # Gambles are represented as matrices, and are constructed using gamble().
+> # Each gamble branch is represented on a row
+> g1A <- gamble(x=c(2500, 2400, 0), p=c(0.33, 0.66, 0.01))
+> g1A
+        x    p
+[1,] 2500 0.33
+[2,] 2400 0.66
+[3,]    0 0.01
+> g1B <- gamble(x=c(2400), p=c(1))
+> g1B
+        x p
+[1,] 2400 1
+> 
+> 
+> 
+> # Choices are lists of gambles.
+> c1 <- list(g1A=g1A, g1B=g1B)
+> c1
+$g1A
+        x    p
+[1,] 2500 0.33
+[2,] 2400 0.66
+[3,]    0 0.01
+
+$g1B
+        x p
+[1,] 2400 1
+
+> c2 <- list(g2A=gamble(x=c(2500, 0), p=c(0.33, 0.67)),
++ 	g2B=gamble(x=c(2400, 0), p=c(0.34, 0.66))
++ )
+> c2
+$g2A
+        x    p
+[1,] 2500 0.33
+[2,]    0 0.67
+
+$g2B
+        x    p
+[1,] 2400 0.34
+[2,]    0 0.66
+
+> c3 <- list(g3A=gamble(x=c(4000, 0), p=c(0.8, 0.2)),
++ 	g3B=gamble(x=c(3000), p=c(1))
++ )
+> c3
+$g3A
+        x   p
+[1,] 4000 0.8
+[2,]    0 0.2
+
+$g3B
+        x p
+[1,] 3000 1
+
+> choices <- list(c1=c1, c2=c2, c3=c3)
+> 
+> 
+> 
+> # attributes.from.gamble() extracts either probabilities or amounts
+> attributes.from.gamble(g1A, "x")
+        x
+[1,] 2500
+[2,] 2400
+[3,]    0
+> attributes.from.gamble(g1A, "p")
+        p
+[1,] 0.33
+[2,] 0.66
+[3,] 0.01
+> 
+> 
+> 
+> # attributes.from.choice() extracts either probabilities or amounts and
+> # returns a sorted vector
+> attributes.from.choice(c1, "x")
+g1A3 g1A2  g1B g1A1 
+   0 2400 2400 2500 
+> attributes.from.choice(c1, "p")
+g1A3 g1A1 g1A2  g1B 
+0.01 0.33 0.66 1.00 
+> 
+> 
+> 
+> # valence.gamble() makes the probability of bad branches (i.e., those with
+> # amounts less than threshold) negative
+> valence.gamble(g1A, absolute.threshold=100)
+        x     p
+[1,] 2500  0.33
+[2,] 2400  0.66
+[3,]    0 -0.01
+> 
+> 
+> 
+> # valence.choice() makes the probability of bad branches negative. For
+> # gains, amounts within threshold of the minimum amount are bad. For losses,
+> # amounts within threshold of the maximum are good. For mixed gambles,
+> # losses are bad. Note that the 
+> valence.choice(choice=c1, threshold=100)
+$g1A
+        x     p
+[1,] 2500  0.33
+[2,] 2400  0.66
+[3,]    0 -0.01
+
+$g1B
+        x p
+[1,] 2400 1
+
+> 
+> 
+> 
+> # prob.favorable() returns the proportion of comparisons between the target
+> # and other attributes in which the target exceeds the other attributes by
+> # at least threshold
+> prob.favorable(target.attribute=10, other.attributes=c(7,8,9,11,12,13), threshold=1)
+[1] 0.5
+> 
+> 
+> 
+> # prob.favorable.against.choice.and.context() returns the proportion of
+> # comparisons against both the other attributes in the choice and against a
+> # background distribution of attribute values. prob.sample.context gives the
+> # relatve probability of sampling from the background context rather than
+> # the other attributes in the choice
+> prob.favorable.against.choice.and.context(attribute=5,
++ 	other.attributes=c(1,2,4,6,7,8), 
++ 	context=1:10, 
++ 	threshold=1,
++ 	prob.sample.context=.5
++ )
+[1] 0.45
+> 
+> 
+> 
+> # Thresholds for discriminating amounts and probabilities
+> thresholds <- list(x=100, p=.1)
+> 
+> 
+> 
+> # The background context of amounts and probabilities
+> context <- list(x=seq(-6000,6000,1), p=seq(-1,1,.01))
+> 
+> 
+> 
+> # prob.each.attribute.in.gamble.favorable() returns a matrix where each
+> # element is the probability that the corresponding attribute in the gamble
+> # will be compared favorably against the other attributes in the choice and
+> # the background context
+> g1A.v <- valence.gamble(g1A, absolute.threshold=100)
+> g1B.v <- valence.gamble(g1B, absolute.threshold=100)
+> prob.each.attribute.in.gamble.favorable(gamble=g1A.v, 
++ 	other.gambles=list(g1A.v, g1B.v), 
++ 	thresholds=thresholds, 
++ 	context=context, 
++ 	prob.sample.context=.5
++ )
+             x         p
+[1,] 0.7250125 0.4334577
+[2,] 0.4708462 0.6405473
+[3,] 0.2458545 0.2238806
+> 
+> 
+> 
+> # prob.each.gamble.in.choice.favorable() returns the average probability for
+> # each gamble, averaged over all attributes in the gamble, on a favorable
+> # comparison. self.comparison sets whether an attribute is compared with all
+> # attributes in a the choice, or only those of the other competing gambles
+> prob.each.gamble.in.choice.favorable(choice=list(g1A.v, g1B.v), 
++ 	thresholds=thresholds, 
++ 	context=context, 
++ 	prob.sample.context=.5, 
++ 	prob.sample.amount=.5, 
++ 	self.comparison=T
++ )
+[1] 0.4565998 0.6604853
+> 
+> 
+> 
+> # prob.random.walk() takes a vector indicating the probability of a step in
+> # each direction and returns the probability that each option will win the
+> # walk
+> prob.random.walk(prob.favorable=c(.3,.5), choice.threshold=5)
+[1] 0.0142522 0.5000000
+> 
+> 
+> 
+> # DbS() takes a list of choices and, for each, returns in a list a vector
+> # giving the probability of each gamble being selected. Note the choice of
+> # either a random walk to threshold or an accumulator race to threshold
+> predictions <- DbS(choices=choices, 
++ 	thresholds=thresholds, 
++ 	context=context, 
++ 	prob.sample.context=.5, 
++ 	prob.sample.amount=.5, 
++ 	self.comparison=T, 
++ 	choice.mechanism="random walk",
++ 	choice.threshold=5
++ )
+> predictions
+$c1
+      g1A       g1B 
+0.1363623 0.8636377 
+
+$c2
+      g2A       g2B 
+0.6003428 0.3996572 
+
+$c3
+      g3A       g3B 
+0.1068111 0.8931889 
+
+> # To get the probability of picking the first gamble for each choice:
+> sapply(predictions,function(z) {z[[1]]})
+       c1        c2        c3 
+0.1363623 0.6003428 0.1068111 
+> 
+> proc.time()
+   user  system elapsed 
+  0.236   0.032   0.256 
